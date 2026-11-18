@@ -1,0 +1,33 @@
+name: Busqueda Diaria REMAX CRM
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 11 * * *'
+
+jobs:
+  buscar-propiedades:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar Chromium y dependencias
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium chromium-driver
+          pip install -r requirements.txt
+
+      - name: Crear credentials.json
+        run: |
+          cat << 'EOF' > credentials.json
+          ${{ secrets.GOOGLE_CREDENTIALS }}
+          EOF
+
+      - name: Ejecutar busqueda en REMAX
+        run: python busqueda_diaria_remax.py
